@@ -1,6 +1,6 @@
-import { Box, ContextView, FocusView, TextField, Button, DateField } from "@stripe/ui-extension-sdk/ui";
+import { Box, ContextView, FocusView, TextField, Button, DateField, Select } from "@stripe/ui-extension-sdk/ui";
 import { ExtensionContextValue, useRefreshDashboardData } from "@stripe/ui-extension-sdk/context";
-import {useCallback, useState} from 'react';
+import {useState} from 'react';
 import {createHttpClient, STRIPE_API_KEY} from '@stripe/ui-extension-sdk/http_client';
 import Stripe from 'stripe';
 
@@ -25,6 +25,14 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
   const [iterations, setIterations] = useState<number>(0);
   const [remainder, setRemainder] = useState<number>(0);
   const [picker, setPicker] = useState<boolean>(false);
+  const [products, setProducts] = useState<Array<Stripe.Product>>([]);
+  const updateProducts = (newProducts: Array<Stripe.Product>) => {
+    setProducts(newProducts);
+  }
+  const [product, setProduct] = useState<string>('');
+  const updateProduct = (newProduct: string) => {
+    setProduct(newProduct);
+  }
   const updateAmount = (newAmount: number) => {
     setAmount(newAmount);
   };
@@ -39,10 +47,11 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
     const remainder = amount % paymentAmount;
     setIterations(quot);
     setRemainder(remainder);
+    getProductListforFocusView();
     setPicker(true);
   };
   const refreshDashboardData = useRefreshDashboardData();
-  const createSubscriptionScheduleCurrentCustomer = async (amount: number, iterations: number, remainder: number, startDate: string) => {
+  const createSubscriptionScheduleCurrentCustomer = async (amount: number, iterations: number, remainder: number, startDate: string, product: string) => {
     // We can use the current objectContext to get the customer ID.
     const customer_id = environment && environment.objectContext && environment.objectContext.id ? environment.objectContext.id : ''
     // construct phases of the subscription schedule
@@ -52,7 +61,7 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
           {
             price_data: {
               currency: 'usd',
-              product: 'prod_MBwG2X6cv1wzHu', // replace this with a product ID from your account
+              product: product,
               recurring: {
                 interval: 'month',
               },
@@ -73,7 +82,7 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
             {
               price_data: {
                 currency: 'usd',
-                product: 'prod_MBwG2X6cv1wzHu', // replace this with a product ID from your account
+                product: product,
                 recurring: {
                   interval: 'month',
                 },
@@ -106,16 +115,35 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
   };
 
   // Stripe API call
-  const createSubscriptionForCustomer = useCallback(async (amount, iterations, remainder, startDate) => {
+  const createSubscriptionForCustomer = (async (amount: number, iterations: number, remainder: number, startDate: string, product: string) => {
     try {
-      await createSubscriptionScheduleCurrentCustomer(amount, iterations, remainder, startDate);
+      await createSubscriptionScheduleCurrentCustomer(amount, iterations, remainder, startDate, product);
       // Call to refresh the data on the dashboard
       setPicker(false);
       refreshDashboardData();
     } catch (error) {
       console.log(error)
     }
-  }, [refreshDashboardData]);
+  });
+
+  const getProductList = async () => {
+    try {
+      const products = await stripe.products.list({limit: 3});
+      if (products.data.length > 0) {
+        updateProducts(products.data); 
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getProductListforFocusView = (async () => {
+    try {
+      await getProductList();
+    } catch (error) {
+      console.log(error)
+    }
+  });
   
   return (
     <ContextView
@@ -151,16 +179,35 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
               disabled
             />
         </Box>
-        <Box css={{padding: 'medium'}}>
+        <Box css={{padding: 'medium', stack: "x", gap: "medium"}}>
           <DateField
             label="Start Date"
             description="Date the payment schedule starts"
             defaultValue={startDate}
             onChange={(e) => updateStartDate(e.target.value as unknown as string)} 
           />
+          <Select
+            name="products"
+            label="Product"
+            required={true}
+            onChange={(e) => updateProduct(e.target.value as unknown as string)} 
+          >
+            <option value="">Choose an option</option>
+            {
+            products.map((x, y) => 
+              <option key={y} value={x.id}>{x.name}</option>
+              )
+            }
+          </Select>
         </Box>
         <Box css={{padding: 'medium'}}>
-          <Button type="primary" onPress={() => createSubscriptionForCustomer(paymentAmount, iterations, remainder, startDate)}>Create Payment Schedule</Button>
+          <Button disabled={product.length < 1} type="primary" onPress={() => createSubscriptionForCustomer(
+            paymentAmount, 
+            iterations, 
+            remainder, 
+            startDate, 
+            product)
+          }>Create Payment Schedule</Button>
         </Box>
         </FocusView>
         <Box css={{stack: 'y', gap: 'medium'}}>

@@ -7,4 +7,6 @@ The Stripe UI exstenion for the Customer detail view uses an "Amount Due" as the
 The Focus view after selecting "Setup Payment Schedule" will calculate the number of installments or iterations, and if applicable, the remiander where the final installment is less than the previous iterations - which is achieved using phases in Subscription Schedules. 
 
 ### Install
-`stripe apps start`
+Create at least one Product for use with the Subscription Schedules. 
+
+Run `stripe apps start` in the terminal

@@ -7,6 +7,10 @@
     {
       "permission": "subscription_write",
       "purpose": "schedules"
+    },
+    {
+      "permission": "product_read",
+      "purpose": "products-choice"
     }
   ],
   "app_backend": {
