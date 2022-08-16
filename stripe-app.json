@@ -1,0 +1,30 @@
+{
+  "id": "com.example.subscription-schedules",
+  "version": "0.0.1",
+  "name": "Subscription Schedules",
+  "icon": "",
+  "permissions": [
+    {
+      "permission": "subscription_write",
+      "purpose": "schedules"
+    }
+  ],
+  "app_backend": {
+    "webhooks": null
+  },
+  "ui_extension": {
+    "views": [
+      {
+        "viewport": "stripe.dashboard.customer.detail",
+        "component": "App"
+      }
+    ],
+    "actions": [],
+    "content_security_policy": {
+      "connect-src": null,
+      "image-src": null,
+      "purpose": ""
+    }
+  },
+  "post_install_action": null
+}
