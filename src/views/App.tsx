@@ -3,7 +3,6 @@ import { ExtensionContextValue, useRefreshDashboardData } from "@stripe/ui-exten
 import {useCallback, useState} from 'react';
 import {createHttpClient, STRIPE_API_KEY} from '@stripe/ui-extension-sdk/http_client';
 import Stripe from 'stripe';
-import BrandIcon from "./brand_icon.svg";
 
 const stripe = new Stripe(STRIPE_API_KEY, {
   httpClient: createHttpClient(),
@@ -122,7 +121,6 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
     <ContextView
       title="Recurring Payments"
       brandColor="#F6F8FA" // replace this with your brand color
-      brandIcon={BrandIcon} // replace this with your brand icon
     >
       <Box css={{ height: "fill", stack: "y", distribute: "space-between" }}>
         <FocusView
