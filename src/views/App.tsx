@@ -52,7 +52,7 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
           {
             price_data: {
               currency: 'usd',
-              product: 'prod_MBwG2X6cv1wzHu',
+              product: 'prod_MBwG2X6cv1wzHu', // replace this with a product ID from your account
               recurring: {
                 interval: 'month',
               },
@@ -73,7 +73,7 @@ const App = ({ userContext, environment }: ExtensionContextValue) => {
             {
               price_data: {
                 currency: 'usd',
-                product: 'prod_MBwG2X6cv1wzHu',
+                product: 'prod_MBwG2X6cv1wzHu', // replace this with a product ID from your account
                 recurring: {
                   interval: 'month',
                 },
